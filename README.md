@@ -25,10 +25,6 @@ OpenCode、Pi 等 Agent；这些属于后续扩展方向，不代表当前版本
 
 ## 调用架构
 
-<p align="center">
-  <img src="./plugins/agent-caller/assets/agent-caller-architecture.png" width="900" alt="Agent Caller cross-provider architecture">
-</p>
-
 ```mermaid
 flowchart LR
     Lead["Codex / Multi-Agent Orchestrator"] -->|"11 MCP tools"| Hub["Agent Caller"]
