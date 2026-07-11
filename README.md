@@ -38,7 +38,7 @@ flowchart LR
 
     Hub -->|"Claude Agent SDK / CLI"| Claude["Claude Code Agent"]
     Hub -->|"App Server v2"| CodexAgent["Codex Agent"]
-    Hub -. "future provider adapters" .-> Future["OpenCode / Pi / ..."]
+    Hub -.->|future provider adapters| Future["OpenCode / Pi / ..."]
 
     Claude <--> ClaudeSession[("Claude Session")]
     CodexAgent <--> CodexThread[("Codex Thread")]
