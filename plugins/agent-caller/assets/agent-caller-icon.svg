@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Caller</title>
+  <desc id="desc">Three connected coding-agent conversation nodes</desc>
+  <rect width="512" height="512" rx="112" fill="#11161A"/>
+  <path d="M166 190C197 222 223 251 256 306C289 251 315 222 346 190" fill="none" stroke="#EAF4F1" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M179 179C223 145 289 145 333 179" fill="none" stroke="#EAF4F1" stroke-width="18" stroke-linecap="round" opacity="0.72"/>
+  <path d="M126 118h88a28 28 0 0 1 28 28v62a28 28 0 0 1-28 28h-35l-28 27v-27h-25a28 28 0 0 1-28-28v-62a28 28 0 0 1 28-28Z" fill="#18C79C"/>
+  <circle cx="151" cy="177" r="11" fill="#11161A"/>
+  <circle cx="190" cy="177" r="11" fill="#11161A"/>
+  <path d="M298 118h88a28 28 0 0 1 28 28v62a28 28 0 0 1-28 28h-25v27l-28-27h-35a28 28 0 0 1-28-28v-62a28 28 0 0 1 28-28Z" fill="#FF6B5F"/>
+  <circle cx="322" cy="177" r="11" fill="#11161A"/>
+  <circle cx="361" cy="177" r="11" fill="#11161A"/>
+  <path d="M184 286h144a36 36 0 0 1 36 36v76a36 36 0 0 1-36 36h-47l-25 29-25-29h-47a36 36 0 0 1-36-36v-76a36 36 0 0 1 36-36Z" fill="#F5F8F7"/>
+  <path d="M218 329 231 314 274 349 231 384 218 369 243 349Z" fill="#11161A"/>
+  <rect x="277" y="369" width="43" height="17" rx="8.5" fill="#18C79C"/>
+</svg>
