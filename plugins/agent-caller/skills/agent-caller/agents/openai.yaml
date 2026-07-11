@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Caller"
+  short_description: "Create model-selectable Claude Code and Codex agents"
+  default_prompt: "Use $agent-caller to inspect available models, ask me which model and effort to use, then create a trusted project-scoped durable agent team for this task."

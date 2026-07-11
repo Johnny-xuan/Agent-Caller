@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "agent-caller": {
+      "command": "node",
+      "args": ["./scripts/start.mjs"],
+      "cwd": "."
+    }
+  }
+}
