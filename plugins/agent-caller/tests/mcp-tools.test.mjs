@@ -97,6 +97,12 @@ test("the MCP surface stays agent-oriented", () => {
   assert.equal(create.inputSchema.required.includes("cwd"), true);
   assert.equal(send.inputSchema.required.includes("cwd"), true);
   assert.match(create.inputSchema.properties.profile.description, /Defaults to trusted/);
+  assert.deepEqual(send.inputSchema.properties.profile.enum, [
+    "trusted",
+    "guarded",
+    "observer",
+  ]);
+  assert.match(send.inputSchema.properties.profile.description, /Agent's default profile/);
   assert.equal(history.inputSchema.properties.limit.default, 6);
   assert.equal(models.annotations.openWorldHint, false);
   assert.match(create.inputSchema.properties.effort.description, /list_models/);
@@ -130,6 +136,7 @@ test("MCP tools support multi-turn, release, resume, history, and delete", async
     cwd,
     model: "fake-model-fast",
     effort: "low",
+    profile: "observer",
   });
   const second = await callAgentTool(context, "send_message", {
     agent: created.agent.id,
@@ -139,6 +146,11 @@ test("MCP tools support multi-turn, release, resume, history, and delete", async
   assert.equal(first.run.status, "completed");
   assert.equal(first.run.model, "fake-model-fast");
   assert.equal(first.run.effort, "low");
+  assert.deepEqual(
+    [first.run.profile, first.run.sandbox, first.run.approval],
+    ["observer", "read_only", "fail_closed"],
+  );
+  assert.equal(second.run.profile, "trusted");
   assert.equal(second.agent.recoverable, true);
 
   const released = await callAgentTool(context, "release_agent", { agent: "worker", cwd });

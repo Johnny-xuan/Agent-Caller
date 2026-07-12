@@ -95,22 +95,28 @@ export const TOOL_DEFINITIONS = [
     name: "send_message",
     title: "Message Durable Agent",
     description:
-      "Send one new turn to an existing agent. Wait for the reply by default, or return the persisted running Run immediately for parallel work.",
+      "Send one new turn to an existing agent, optionally selecting a Run-only authority profile. Wait for the reply by default, or return the persisted running Run immediately for parallel work.",
     inputSchema: objectSchema(
       {
         agent: agentReference,
         message: { type: "string", minLength: 1, maxLength: 100_000 },
         cwd: callerCwdProperty,
         scope: scopeProperty,
+        profile: {
+          type: "string",
+          enum: ["trusted", "guarded", "observer"],
+          description:
+            "Optional authority profile for this Run. When omitted, the Agent's default profile is used.",
+        },
         sandbox: {
           type: "string",
           enum: ["read_only", "workspace_write", "danger_full_access"],
-          description: "Optional narrower sandbox for this Run; cannot exceed the Agent policy.",
+          description: "Advanced sandbox override for this Run's selected profile.",
         },
         approval: {
           type: "string",
           enum: ["fail_closed", "on_request", "autonomous"],
-          description: "Optional stricter approval behavior for this Run; cannot exceed the Agent policy.",
+          description: "Advanced approval override for this Run's selected profile.",
         },
         model: {
           type: "string",
@@ -353,6 +359,7 @@ export async function callAgentTool({ service, providers }, name, input = {}) {
     const args = {
       agent: requiredString(input.agent, "agent"),
       message: requiredString(input.message, "message"),
+      profile: input.profile,
       sandbox: input.sandbox,
       approval: input.approval,
       model: input.model,

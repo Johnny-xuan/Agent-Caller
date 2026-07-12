@@ -13,10 +13,14 @@ suite.
 - Agent is `inactive` or `stopped`: call `resume_agent` before the next message.
 - Agent appears busy after a restart: inspect the latest Run; interrupted work
   is never automatically replayed.
+- Agent is running with empty output: continue waiting. Providers may complete
+  many internal tool calls before producing their first user-facing text; blank
+  output alone is not evidence that the Run is stuck.
 - Claude guarded mode fails immediately: verify the Claude Agent SDK is
   available because CLI fallback cannot round-trip interactive requests.
-- Plugin was reinstalled but the old surface remains visible: start a new Codex
-  task so the host loads the new plugin cache and Skill metadata.
+- Plugin was reinstalled but the old surface remains visible: start a new host
+  session (a new Codex task or Claude Code session) so the host loads the new
+  plugin cache and Skill metadata.
 - Expected Agent is missing: verify the caller `cwd` and scope. Project Agents
   appear only for the exact canonical Workspace path the user opened; Git roots
   are not inferred. Global Agents require explicit `scope=global`.

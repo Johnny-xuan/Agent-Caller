@@ -88,6 +88,8 @@ test("SDK calls preserve role, session, and omit a default turn limit", async ()
   assert.equal(calls[0].options.pathToClaudeCodeExecutable, "claude");
   assert.match(calls[0].options.systemPrompt.append, /Challenge architectural assumptions/);
   assert.match(calls[0].options.systemPrompt.append, /observer Run/);
+  assert.match(calls[0].options.systemPrompt.append, /coordinated through Agent Caller/);
+  assert.doesNotMatch(calls[0].options.systemPrompt.append, /parent Codex/);
   assert.match(calls[0].options.systemPrompt.append, /credentials, tokens, secret stores/);
   assert.match(calls[0].options.systemPrompt.append, /force-push/);
   assert.deepEqual(calls[0].options.tools, ["Read", "Glob", "Grep", "AskUserQuestion"]);
@@ -116,6 +118,7 @@ test("CLI arguments remain project-aware, resumable, and unlimited by default", 
   assert.equal(args[args.indexOf("--effort") + 1], "max");
   assert.match(args[args.indexOf("--append-system-prompt") + 1], /architect/);
   assert.match(args[args.indexOf("--append-system-prompt") + 1], /observer Run/);
+  assert.match(args[args.indexOf("--append-system-prompt") + 1], /coordinating host/);
 });
 
 test("Claude model catalog preserves compatible-endpoint models and effort levels", async () => {

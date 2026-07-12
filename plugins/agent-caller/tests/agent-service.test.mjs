@@ -15,9 +15,20 @@ class FakeProvider {
     this.capabilities = { multiTurn: true, stoppable: true };
   }
 
-  async send({ agent, message, model, effort, signal, onEvent, onProviderState, onRequest }) {
+  async send({
+    agent,
+    message,
+    sandbox,
+    approval,
+    model,
+    effort,
+    signal,
+    onEvent,
+    onProviderState,
+    onRequest,
+  }) {
     const sessionId = agent.providerState.sessionId || `fake_${agent.id}`;
-    this.calls.push({ agentId: agent.id, message, model, effort, sessionId });
+    this.calls.push({ agentId: agent.id, message, sandbox, approval, model, effort, sessionId });
     await onProviderState({ sessionId });
 
     if (message === "wait") {
@@ -503,38 +514,57 @@ test("restart expires a persisted request whose provider callback disappeared", 
   assert.equal(history.agent.status, "inactive");
 });
 
-test("a Run may narrow but cannot escalate its Agent policy", async (t) => {
-  const { service } = await fixture(t);
-  const restricted = await service.createAgent({
-    name: "policy-ceiling",
+test("one Agent may switch profile per Run and return to its default", async (t) => {
+  const { provider, service } = await fixture(t);
+  const agent = await service.createAgent({
+    name: "profile-switching",
     provider: "fake",
-    sandbox: "read_only",
-    approval: "fail_closed",
+    profile: "observer",
   });
-  await assert.rejects(
-    service.sendMessage({
-      agent: restricted.id,
-      message: "escalate",
-      sandbox: "workspace_write",
-      approval: "on_request",
-    }),
-    (error) => error.code === "POLICY_ESCALATION",
-  );
+  const observed = await service.sendMessage({
+    agent: agent.id,
+    message: "observe",
+  });
+  const trusted = await service.sendMessage({
+    agent: agent.id,
+    message: "act",
+    profile: "trusted",
+  });
+  const guarded = await service.sendMessage({
+    agent: agent.id,
+    message: "supervise",
+    profile: "guarded",
+  });
+  const restored = await service.sendMessage({
+    agent: agent.id,
+    message: "observe again",
+  });
 
-  const broad = await service.createAgent({
-    name: "policy-narrow",
-    provider: "fake",
-    sandbox: "workspace_write",
-    approval: "on_request",
-  });
-  const narrowed = await service.sendMessage({
-    agent: broad.id,
-    message: "narrow",
-    sandbox: "read_only",
-    approval: "fail_closed",
-  });
-  assert.equal(narrowed.run.sandbox, "read_only");
-  assert.equal(narrowed.run.approval, "fail_closed");
+  assert.deepEqual(
+    [observed.run, trusted.run, guarded.run, restored.run].map(
+      ({ profile, sandbox, approval }) => [profile, sandbox, approval],
+    ),
+    [
+      ["observer", "read_only", "fail_closed"],
+      ["trusted", "danger_full_access", "autonomous"],
+      ["guarded", "workspace_write", "on_request"],
+      ["observer", "read_only", "fail_closed"],
+    ],
+  );
+  assert.deepEqual(
+    provider.calls.map(({ sandbox, approval }) => [sandbox, approval]),
+    [
+      ["read_only", "fail_closed"],
+      ["danger_full_access", "autonomous"],
+      ["workspace_write", "on_request"],
+      ["read_only", "fail_closed"],
+    ],
+  );
+  const persisted = (await service.getAgent(agent.id)).agent;
+  assert.deepEqual(
+    [persisted.profile, persisted.sandbox, persisted.approval],
+    ["observer", "read_only", "fail_closed"],
+  );
 });
 
 test("a stop-response race cannot leave an orphaned running agent", async (t) => {

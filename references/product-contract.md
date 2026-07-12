@@ -2,11 +2,14 @@
 
 ## Product Definition
 
-Agent Caller gives Codex a durable external sub-agent system.
+Agent Caller gives a Claude Code or Codex host a durable external sub-agent
+system. In this contract, "the host" means whichever session loaded the plugin
+— Codex or Claude Code.
 
-Codex can create independent agents backed by Claude Code or Codex, assign each
-agent a role, send messages over multiple turns, inspect its output history,
-stop current work, and later restore the same agent with its prior context.
+The host can create independent agents backed by Claude Code or Codex, assign
+each agent a role, send messages over multiple turns, inspect its output
+history, stop current work, and later restore the same agent with its prior
+context.
 
 The product is not a collection of review or rescue commands. Review, rescue,
 implementation, research, and adversarial analysis are roles or instructions
@@ -19,7 +22,7 @@ one turn in the agent's conversation.
 
 - Agent: owns a provider, role, working directory, provider session, and message
   history.
-- Run: starts when Codex sends work to an agent and ends when the agent replies,
+- Run: starts when the host sends work to an agent and ends when the agent replies,
   fails, or is stopped.
 - Message: a user or agent turn recorded under the durable agent.
 - Provider process: an implementation detail that may exit without deleting the
@@ -30,7 +33,7 @@ that intentionally removes its recoverable state.
 
 ## User Experience
 
-Codex acts as the team lead. It can:
+The host acts as the team lead. It can:
 
 1. Create a named agent, choose `claude-code` or `codex` as its provider, and
    optionally select a trust profile.
@@ -75,7 +78,8 @@ supplies another Workspace path.
 The public capability surface is intentionally small:
 
 - `create_agent`: create a durable agent identity with a provider and role.
-- `send_message`: send one new turn to an existing agent.
+- `send_message`: send one new turn to an existing agent, optionally selecting
+  that Run's authority profile.
 - `get_agent`: inspect identity, status, current run, and recent output.
 - `get_history`: read recorded conversation and run output.
 - `list_agents`: list the team and each member's status.
@@ -88,7 +92,7 @@ The public capability surface is intentionally small:
   active agent.
 
 Provider-specific session identifiers remain internal to the public MCP tools.
-Codex addresses agents by the stable Agent Caller ID or an unambiguous name.
+The host addresses agents by the stable Agent Caller ID or an unambiguous name.
 The owner may open a persisted provider conversation directly for diagnostics:
 Claude Code accepts `claude --resume <session-id>` and Codex accepts
 `codex resume <thread-id>`. The IDs live in the Agent's local `agent.json`.
@@ -118,12 +122,16 @@ return its real compatibility error.
 `send_message` Run may override either value without changing the Agent default.
 Every Run records its effective model and effort for status and history.
 
-On the first delegation to a provider in each parent Codex task, the coordinator
+The same rule applies to authority. The Agent profile is a durable default;
+`send_message.profile` selects one Run without mutating that default. Every Run
+records its effective profile, sandbox, and approval policy.
+
+On the first delegation to a provider in each host session, the coordinator
 queries `list_models` and asks the user to choose model and effort unless both
 were already explicit in the current request. That choice is reused for the
-same provider in the task. A provider or project-directory change, an explicit
+same provider in the session. A provider or project-directory change, an explicit
 switch request, or a catalog mismatch requires a fresh choice. This is a Skill
-contract because standard MCP does not expose the parent task identity to the
+contract because standard MCP does not expose the parent host session identity to the
 server.
 
 ## Lifecycle
@@ -155,7 +163,7 @@ may run concurrently.
 ## Sandbox And Approval
 
 Resource scope and approval behavior are separate and explicit. They are not
-implicitly inherited from the parent Codex task because standard MCP calls do
+implicitly inherited from the parent host session because standard MCP calls do
 not carry the parent's sandbox or approval context.
 
 The personal local plugin exposes three named profiles:
@@ -163,14 +171,21 @@ The personal local plugin exposes three named profiles:
 | Profile | Sandbox | Approval | Intended use |
 |---|---|---|---|
 | `trusted` | `danger_full_access` | `autonomous` | Normal local coding by a trusted durable teammate |
-| `guarded` | `workspace_write` | `on_request` | Writable work whose provider operations should be supervised |
-| `observer` | `read_only` | `fail_closed` | Review and analysis without modification |
+| `guarded` | `workspace_write` | `on_request` | Explicitly supervised or high-impact work |
+| `observer` | `read_only` | `fail_closed` | Strict local inspection with reduced Provider tools |
 
 New agents default to `trusted` when no profile or low-level policy is supplied.
 This is a deliberate usability choice for the owner's local environment. Calls
 that explicitly use the older `sandbox` or `approval` parameters keep their
 original low-level semantics, and persisted agents are classified from their
 existing policy rather than silently upgraded.
+
+The coordinator keeps `trusted` for ordinary delegation, including review,
+tests, web research, and other configured Provider tools. It must not infer
+`guarded` or `observer` merely from a task label or from the task's stated intent
+not to modify files. Narrower profiles require an explicit user request or an
+explicit authority decision for production, publishing, secrets, destructive
+operations, or other high-impact work.
 
 Sandbox scope:
 
@@ -183,7 +198,7 @@ Sandbox scope:
 Approval behavior:
 
 - `fail_closed`: operations that require approval are denied instead of asking.
-- `on_request`: the Run pauses and exposes a durable request to Codex.
+- `on_request`: the Run pauses and exposes a durable request to the host.
 - `autonomous`: the provider proceeds without asking, while the selected sandbox
   remains the maximum resource boundary.
 
@@ -192,10 +207,11 @@ When low-level policy is used without a profile, read-only agents default to
 original API behavior. Low-level overrides of a named profile are reported as
 `custom` when the resulting pair no longer matches a named profile.
 
-An Agent's creation policy is its maximum authority. A message may temporarily
-use a narrower sandbox or stricter approval behavior, but it cannot escalate
-beyond the Agent policy. Broader authority requires a separately authorized
-Agent rather than a hidden per-message upgrade.
+An Agent's creation profile is its durable default. A message may select another
+named profile for its Run without changing that default, Agent identity, or
+provider conversation. Omitting the Run profile uses the Agent default again.
+Policy is immutable after the Run starts; changing authority requires the active
+Run to finish or stop before another Run begins.
 
 Provider-native implementations may differ, but the public meaning must stay
 stable. Codex sandbox modes enforce resource scope directly. Claude Code uses
@@ -276,8 +292,8 @@ Roles are durable instructions attached to an agent. They may describe an
 architect, implementer, reviewer, debugger, researcher, or any user-defined team
 member. A role does not create a separate execution path.
 
-Codex coordinates agents by sending messages. Agents do not silently share
-private context; Codex deliberately relays conclusions or artifacts when another
+The host coordinates agents by sending messages. Agents do not silently share
+private context; the host deliberately relays conclusions or artifacts when another
 agent needs them.
 
 ## Safety And Visibility
@@ -304,7 +320,7 @@ agent needs them.
 
 - Importing an entire Codex or Claude transcript into another provider.
 - Creating separate review, rescue, or adversarial execution engines.
-- Replacing Codex as the final coordinator and decision maker.
+- Replacing the host as the final coordinator and decision maker.
 - Requiring a continuously running provider process to preserve an agent.
 - Hiding provider identity or pretending different providers have identical
   tool capabilities.
@@ -313,15 +329,15 @@ agent needs them.
 
 The product is aligned when this flow works end to end:
 
-1. Codex creates `architect` backed by Claude Code and `implementer` backed by
-   Codex.
-2. Codex sends both agents different role-appropriate requests.
+1. A Claude Code host creates `architect` backed by Claude Code and
+   `implementer` backed by Codex.
+2. The host sends both agents different role-appropriate requests.
 3. Both replies and run records are visible.
-4. Codex asks `architect` a follow-up and the agent remembers its first turn.
-5. Codex releases `architect` after a completed reply, restores it, and sends a
+4. The host asks `architect` a follow-up and the agent remembers its first turn.
+5. The host releases `architect` after a completed reply, restores it, and sends a
    new follow-up in the same provider conversation.
-6. Codex stops `implementer` during active work.
+6. The host stops `implementer` during active work.
 7. The process exits but `implementer` remains listed with its unfinished run.
-8. After restarting Agent Caller, Codex restores `implementer` and continues the
-   same provider conversation.
+8. After restarting Agent Caller, a Codex host opened on the same Workspace
+   restores `implementer` and continues the same provider conversation.
 9. Deleting one agent does not affect the other agent or its history.

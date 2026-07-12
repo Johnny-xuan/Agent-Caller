@@ -4,10 +4,9 @@ import { AgentCallerError, isAbortError } from "./errors.mjs";
 import { makeId, timestamp } from "./ids.mjs";
 import { KeyedLock } from "./keyed-lock.mjs";
 import {
-  assertPolicyWithin,
   normalizePersistedAgent,
   resolveAgentPolicy,
-  resolvePolicy,
+  resolveRunPolicy,
 } from "./policy.mjs";
 import {
   agentInScope,
@@ -214,6 +213,7 @@ export class AgentService {
   async startRun({
     agent: reference,
     message,
+    profile,
     sandbox,
     approval,
     access,
@@ -248,11 +248,12 @@ export class AgentService {
           );
         }
 
-        const runPolicy = assertPolicyWithin(agent, resolvePolicy({
-          sandbox: sandbox || (access ? undefined : agent.sandbox),
-          approval: approval || agent.approval,
+        const runPolicy = resolveRunPolicy(agent, {
+          profile,
+          sandbox,
+          approval,
           access,
-        }));
+        });
         const runModel = optionalText(model, "model", 200) || agent.metadata?.model;
         const runEffort = optionalText(effort, "effort", 80) || agent.metadata?.effort;
         runningRun = {
