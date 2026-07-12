@@ -4,12 +4,14 @@
 
 <h1 align="center">Agent Caller</h1>
 
-<p align="center"><strong>Durable, cross-provider sub-agents for Claude Code and Codex hosts.</strong></p>
+<p align="center"><strong>A plugin that lets coding agents call one another as durable, recoverable sub-agents.</strong></p>
 
-Agent Caller lets a Claude Code or Codex host session coordinate Claude Code
-and Codex agents through one recoverable lifecycle and one authority model.
-Each agent keeps a stable identity, role, provider conversation, and local
-history across messages, provider process exits, and host restarts.
+Agent Caller lets Claude Code, Codex, and other MCP-compatible coding agents
+call one another as durable, recoverable sub-agents. Claude Code and Codex are
+the built-in hosts and providers today; the shared MCP lifecycle is designed to
+extend to more coding agents. Each agent keeps a stable identity, role,
+provider conversation, and local history across messages, provider process
+exits, and host restarts.
 
 > **Latest: v0.2.0** — Claude Code is now a first-class host alongside Codex,
 > sharing the same agents and state. A durable agent can also select
