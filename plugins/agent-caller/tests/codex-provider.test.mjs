@@ -269,6 +269,8 @@ test("Codex trusted policy receives autonomous local-work guidance", () => {
     approval: "autonomous",
   });
   assert.match(params.developerInstructions, /trusted Run/);
+  assert.match(params.developerInstructions, /coordinated through Agent Caller/);
+  assert.doesNotMatch(params.developerInstructions, /parent Codex/);
   assert.match(params.developerInstructions, /Do not ask for routine project reads, edits, tests/);
 });
 

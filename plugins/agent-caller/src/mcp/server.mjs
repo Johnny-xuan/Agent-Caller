@@ -13,8 +13,8 @@ import {
   TOOL_DEFINITIONS,
 } from "./tools.mjs";
 
-const pluginManifest = JSON.parse(
-  await fsp.readFile(new URL("../../.codex-plugin/plugin.json", import.meta.url), "utf8"),
+const packageManifest = JSON.parse(
+  await fsp.readFile(new URL("../../package.json", import.meta.url), "utf8"),
 );
 const dataRoot = path.resolve(
   process.env.AGENT_CALLER_DATA_DIR || path.join(os.homedir(), ".codex", "agent-caller"),
@@ -47,9 +47,9 @@ async function handleRequest(message) {
     sendResult(id, {
       protocolVersion: params?.protocolVersion || "2025-11-25",
       capabilities: { tools: {} },
-      serverInfo: { name: "Agent Caller", version: pluginManifest.version },
+      serverInfo: { name: "Agent Caller", version: packageManifest.version },
       instructions:
-        "Pass the current project cwd on every scoped tool call. Agents default to project scope; use global only when the user explicitly wants cross-project sharing. On first provider use in each parent Codex task, query live models and ask the user to choose model and effort before delegating; reuse that choice within the task. Create trusted durable agents, use narrower profiles when needed, continue multi-turn conversations, and preserve recoverable identities.",
+        "Pass the current Workspace cwd on every scoped tool call. Agents default to project scope; use global only when the user explicitly wants cross-Workspace sharing. On first provider use in each host session, query live models and ask the user to choose model and effort before delegating; reuse that choice within the session. Create trusted durable agents, select a different send_message profile when one Run needs it, continue multi-turn conversations, and preserve recoverable identities.",
     });
     return;
   }

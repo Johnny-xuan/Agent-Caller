@@ -30,7 +30,7 @@ task.
 
 Refresh and ask again when the provider or `cwd` changes, the user asks to
 switch, or the selected model is no longer reported. This behavior belongs to
-the Skill because standard MCP does not expose the parent Codex task ID.
+the Skill because standard MCP does not expose the parent host session ID.
 
 ## Defaults And Overrides
 

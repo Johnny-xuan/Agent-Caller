@@ -1,0 +1,22 @@
+{
+  "name": "agent-caller",
+  "version": "0.2.0",
+  "description": "Durable, recoverable, cross-provider sub-agent orchestration for Claude Code and Codex. Delegate to independent Claude Code or Codex agents through one lifecycle, one authority model, and eleven MCP tools.",
+  "author": {
+    "name": "Johnny",
+    "url": "https://github.com/Johnny-xuan"
+  },
+  "homepage": "https://github.com/Johnny-xuan/Agent-Caller",
+  "repository": "https://github.com/Johnny-xuan/Agent-Caller",
+  "keywords": [
+    "agents",
+    "sub-agents",
+    "claude-code",
+    "codex",
+    "multi-agent",
+    "developer-tools",
+    "durable-agents",
+    "recovery"
+  ],
+  "mcpServers": "./.mcp.claude.json"
+}

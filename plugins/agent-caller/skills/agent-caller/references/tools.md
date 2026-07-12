@@ -21,8 +21,11 @@ Agents. All schemas reject unknown fields.
 
 - Required: `agent`, `message`, caller `cwd`.
 - Optional: `scope` (`project` by default).
-- Optional: narrower `sandbox`, stricter `approval`, Run-only `model` and
-  `effort`, and `wait` (default `true`).
+- Optional: Run-only `profile` (`trusted`, `guarded`, `observer`), advanced
+  `sandbox` and `approval` overrides, Run-only `model` and `effort`, and `wait`
+  (default `true`).
+- Omitting `profile` uses the Agent's durable default; a Run override does not
+  mutate that default or replace the provider conversation.
 - Returns the Agent, Run, any pending requests, and whether the call waited.
 
 `respond_to_request`

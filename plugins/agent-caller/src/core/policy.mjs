@@ -29,18 +29,6 @@ export const TRUST_PROFILES = Object.freeze({
 
 export const TRUST_PROFILE_NAMES = new Set(Object.keys(TRUST_PROFILES));
 
-const SANDBOX_RANK = {
-  read_only: 0,
-  workspace_write: 1,
-  danger_full_access: 2,
-};
-
-const APPROVAL_RANK = {
-  fail_closed: 0,
-  on_request: 1,
-  autonomous: 2,
-};
-
 export function sandboxFromLegacyAccess(access) {
   return access === "write" ? "workspace_write" : "read_only";
 }
@@ -115,15 +103,21 @@ export function normalizePersistedAgent(agent) {
   return { ...current, profile: policyProfile(policy), ...policy };
 }
 
-export function assertPolicyWithin(agentPolicy, runPolicy) {
-  if (
-    SANDBOX_RANK[runPolicy.sandbox] > SANDBOX_RANK[agentPolicy.sandbox] ||
-    APPROVAL_RANK[runPolicy.approval] > APPROVAL_RANK[agentPolicy.approval]
-  ) {
-    throw new AgentCallerError(
-      "POLICY_ESCALATION",
-      `Run policy ${runPolicy.sandbox}/${runPolicy.approval} exceeds agent policy ${agentPolicy.sandbox}/${agentPolicy.approval}`,
-    );
+export function resolveRunPolicy(agent, options = {}) {
+  const { profile, sandbox, approval, access } = options;
+  if (profile !== undefined) {
+    return resolveAgentPolicy({ profile, sandbox, approval, access });
   }
-  return runPolicy;
+
+  if (sandbox === undefined && approval === undefined && access === undefined) {
+    const policy = resolvePolicy(agent);
+    return { profile: policyProfile(policy), ...policy };
+  }
+
+  const policy = resolvePolicy({
+    sandbox: sandbox ?? (access === undefined ? agent.sandbox : undefined),
+    approval: approval ?? agent.approval,
+    access,
+  });
+  return { profile: policyProfile(policy), ...policy };
 }

@@ -1,6 +1,6 @@
 {
   "name": "agent-caller",
-  "version": "0.1.1",
+  "version": "0.2.0+codex.20260712044845",
   "description": "Create Workspace-isolated or global durable Claude Code and Codex sub-agents with live model discovery, recovery, and optional supervision.",
   "author": {
     "name": "Johnny"
@@ -17,7 +17,7 @@
   "interface": {
     "displayName": "Agent Caller",
     "shortDescription": "Workspace-isolated Claude Code and Codex teams.",
-    "longDescription": "Agent Caller gives Codex durable external sub-agents backed by Claude Code or Codex. Agents are isolated by the explicitly opened Workspace path by default, with explicit global scope for deliberate cross-Workspace sharing. It discovers each provider's live model catalog, including compatible-endpoint mappings, and selects model and reasoning effort per Agent or Run. Trusted agents handle ordinary local coding autonomously by default; guarded and observer profiles provide narrower alternatives. Every agent keeps its own role, provider context, multi-turn history, run output, and recoverable identity across process exits.",
+    "longDescription": "Agent Caller gives Claude Code and Codex hosts durable external sub-agents backed by Claude Code or Codex. Agents are isolated by the explicitly opened Workspace path by default, with explicit global scope for deliberate cross-Workspace sharing. It discovers each provider's live model catalog, including compatible-endpoint mappings, and selects model and reasoning effort per Agent or Run. Trusted agents handle ordinary local coding autonomously by default; guarded and observer profiles provide narrower alternatives. Every agent keeps its own role, provider context, multi-turn history, run output, and recoverable identity across process exits.",
     "developerName": "Johnny",
     "category": "Productivity",
     "brandColor": "#18C79C",

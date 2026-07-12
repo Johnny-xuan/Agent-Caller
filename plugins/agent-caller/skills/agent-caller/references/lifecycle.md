@@ -17,6 +17,10 @@ Only one Run may mutate one Agent conversation at a time. Different Agents may
 run concurrently. Use `send_message(wait=false)` to start independent Runs, then
 poll each with `get_agent` rather than repeatedly loading full history.
 
+Some Providers do not emit user-facing output while they search, call tools, or
+reason. A `running` Run with empty output is still running; wait for its final
+reply and never stop it solely because no partial text is visible.
+
 All lifecycle actions remain inside the selected project or global scope. A
 stable Agent ID, Run ID, or Request ID cannot bypass the caller CWD check.
 

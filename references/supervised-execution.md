@@ -21,6 +21,11 @@ New agents default to `trusted` when no profile or low-level policy is supplied.
 The default is intentional for this owner's personal local plugin: external
 agents should behave like trusted native sub-agents during ordinary coding work.
 
+The coordinator keeps this default for ordinary implementation, review, tests,
+web research, and configured Provider tools. It does not infer `observer` or
+`guarded` from a task label alone. Narrower profiles are explicit controls for a
+user-requested boundary or a deliberate high-impact authority decision.
+
 The low-level defaults remain asymmetric for backward-compatible calls that
 pass `sandbox` or `approval` directly:
 
@@ -29,13 +34,15 @@ pass `sandbox` or `approval` directly:
 - `danger_full_access` defaults to `on_request` and cannot be combined with
   `fail_closed`, because no sandbox remains to fail closed against.
 
-The parent Codex task's current policy is not inherited. Standard MCP calls do
+The parent host session's current policy is not inherited. Standard MCP calls do
 not send the host sandbox or approval policy to the MCP server. The profile is
-therefore selected by Agent Caller rather than copied from the host task.
+therefore selected by Agent Caller rather than copied from the host session.
 
-The policy selected at `create_agent` is a ceiling. `send_message` may narrow it
-for one Run but cannot widen it. Sandbox order is `read_only < workspace_write <
-danger_full_access`; approval order is `fail_closed < on_request < autonomous`.
+The profile selected at `create_agent` is the durable default. `send_message`
+may select `trusted`, `guarded`, or `observer` for one Run without changing the
+Agent default or provider conversation. Omitting the profile uses the Agent
+default again. Policy is fixed after a Run starts; stop or finish that Run before
+starting another with a different profile.
 
 Both providers receive the same delegation prompt. In trusted mode it tells the
 agent to proceed without routine local-work approvals while strictly limiting
@@ -60,6 +67,11 @@ The mappings preserve product meaning but are not identical security engines.
 Claude combines tool availability, permission rules, and its command sandbox.
 Codex applies its native sandbox policy. Agent Caller must describe the selected
 scope honestly rather than claiming provider-independent OS isolation.
+
+Claude `read_only` also narrows the visible tool set to Read, Glob, Grep, and
+AskUserQuestion, excluding configured MCP tools such as Web search. Codex may
+retain native read-only tools under its sandbox. This is why `observer` is an
+explicit strict-inspection mode rather than the default for ordinary research.
 
 Claude CLI fallback does not support interactive callbacks. An agent configured
 with `approval=on_request` therefore requires the Claude Agent SDK and fails

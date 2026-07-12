@@ -1,0 +1,17 @@
+{
+  "name": "agent-caller",
+  "description": "Agent Caller — durable, recoverable, cross-provider sub-agent orchestration for Claude Code and Codex hosts.",
+  "owner": {
+    "name": "Johnny",
+    "url": "https://github.com/Johnny-xuan"
+  },
+  "plugins": [
+    {
+      "name": "agent-caller",
+      "source": "./plugins/agent-caller",
+      "description": "Create Workspace-isolated or global durable Claude Code and Codex sub-agents with live model discovery, recovery, and optional supervision. Usable from either a Claude Code or Codex host session.",
+      "version": "0.2.0",
+      "category": "productivity"
+    }
+  ]
+}

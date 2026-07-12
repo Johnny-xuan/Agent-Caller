@@ -7,6 +7,9 @@ import readline from "node:readline";
 import test from "node:test";
 
 test("stdio MCP initializes and lists Agent Caller tools", async (t) => {
+  const packageManifest = JSON.parse(
+    await fsp.readFile(new URL("../package.json", import.meta.url), "utf8"),
+  );
   const dataRoot = await fsp.mkdtemp(path.join(os.tmpdir(), "agent-caller-mcp-protocol-"));
   const child = spawn(process.execPath, ["scripts/start.mjs"], {
     cwd: path.resolve(import.meta.dirname, ".."),
@@ -44,6 +47,15 @@ test("stdio MCP initializes and lists Agent Caller tools", async (t) => {
   const tools = await request("tools/list");
 
   assert.equal(initialized.result.serverInfo.name, "Agent Caller");
+  assert.equal(initialized.result.serverInfo.version, packageManifest.version);
+  assert.match(initialized.result.instructions, /each host session/);
+  assert.doesNotMatch(initialized.result.instructions, /parent Codex/);
   assert.equal(tools.result.tools.length, 11);
   assert.equal(tools.result.tools[0].name, "create_agent");
+  const sendMessage = tools.result.tools.find((tool) => tool.name === "send_message");
+  assert.deepEqual(sendMessage.inputSchema.properties.profile.enum, [
+    "trusted",
+    "guarded",
+    "observer",
+  ]);
 });
